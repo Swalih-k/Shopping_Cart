@@ -1,0 +1,92 @@
+﻿@model IEnumerable<Shopping_Cart.Models.CartItem>
+@using System
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>🛒 Your Cart</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        Your cart is empty.
+    </div>
+    <a class="btn btn-primary" href="@Url.Action("Index", "Product")">Continue Shopping</a>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th>Product</th>
+                <th style="width:150px;">Quantity</th>
+                <th>Subtotal</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <strong>@item.Product.ProductName</strong><br />
+                        <small>Category: @item.Product.Category</small><br />
+                        <small>Price: ₹@item.Product.Price</small>
+                    </td>
+                    <td>
+                        <form asp-action="UpdateQuantity" asp-controller="Product" method="post" class="d-flex">
+                            <input type="hidden" name="productid" value="@item.Product.PId" />
+                            <input type="number" name="quantity" value="@item.Quantity" min="1" class="form-control me-2" style="width: 80px;" />
+                            <button type="submit" class="btn btn-secondary btn-sm">Update</button>
+                        </form>
+                    </td>
+                    <td>₹@item.Subtotal</td>
+                    <td>
+                        <a class="btn btn-danger btn-sm" href="@Url.Action("RemoveFromCart", "Product", new { id = item.Product.PId })">
+                            Remove
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <form asp-action="ApplyPromoCode" method="post" class="mb-3">
+        <label for="promoCode">Have a promo code?</label>
+        <div class="input-group" style="max-width: 300px;">
+            <input type="text" name="promocode" class="form-control" placeholder="Enter promo code" />
+            <button type="submit" class="btn btn-success btn-sm">Apply</button>
+        </div>
+    </form>
+
+    @if (ViewBag.PromoMessage != null)
+    {
+        <div class="alert alert-info">@ViewBag.PromoMessage</div>
+    }
+
+    
+    {
+        var now = DateTime.Now;
+        var hour = now.Hour;
+
+        if (hour >= 6 && hour <= 12)
+        {
+            <text>
+                <div class="alert alert-success">
+                    🎉 Limited Time Offer Active: ₹100 OFF applied between 6:00 AM and 12:00 PM!
+                </div>
+            </text>
+        }
+    }
+    
+    <div class="mt-4">
+        <h4>Total: ₹@ViewBag.Total</h4>
+        <h4>Discount: ₹@ViewBag.Discount</h4>
+        <h3><strong>Final Total: ₹@ViewBag.FinalTotal</strong></h3>
+    </div>
+
+    <div class="mt-3">
+        <a class="btn btn-primary" href="@Url.Action("Index", "Product")">Continue Shopping</a>
+    </div>
+}
