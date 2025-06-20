@@ -8,9 +8,9 @@ namespace Shopping_Cart.Controllers
     public class ProductController : Controller
     {
         private readonly CartService _cartService;
-        private readonly ApplicationDbContext _context;
+         private readonly ApplicationDbContext _context;
 
-       
+
 
 
         public IActionResult ProductUpload()
@@ -37,15 +37,15 @@ namespace Shopping_Cart.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult AdminLogin(UserLogin Model)
+        public IActionResult UserLogin(UserLogin Model)
         {
             if (ModelState.IsValid)
             {
 
-                if (Model.Name == "user" && Model.Password == "12")
+                if (Model.Name == "admin" && Model.Password == "123456")
                 {
 
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Product");
                 }
                 else
                 {
@@ -53,7 +53,7 @@ namespace Shopping_Cart.Controllers
                     ViewBag.ErrorMessage = "Invalid username or password!";
                 }
             }
-            return View();
+            return View(Model);
         }
 
 
@@ -65,29 +65,30 @@ namespace Shopping_Cart.Controllers
 
 
 
-        
+
         private static readonly List<Product> Products = new()
         {
             new Product { PId = 1, ProductName = "Computer", Category = "Electronics", Price = 45000 },
             new Product { PId = 2, ProductName = "Laptop", Category = "Electronics", Price = 42000 },
             new Product { PId = 3, ProductName = "Shoes", Category = "Fashion", Price = 2000 },
-             new Product { PId = 4, ProductName = "Watch", Category = "Fashion", Price = 1000 }
+             new Product { PId = 4, ProductName = "Watch", Category = "Electronics", Price = 1000 },
+              new Product { PId = 5, ProductName = "Sunglasses", Category = "Fashion", Price = 2000 }
         };
 
         public ProductController(ApplicationDbContext context, CartService cartService)
         {
-            _context = context;
+           _context = context;
             _cartService = cartService;
         }
 
-        // Displays the list of available products
+        // Displays available products
         public IActionResult Index()
         {
-            var products = _context.product.ToList();
+           var products = _context.product.ToList();
             return View(Products);
         }
 
-        // Adds a product to the cart
+        // Adds a product 
         public IActionResult AddToCart(int id)
         {
             var product = Products.FirstOrDefault(p => p.PId == id);
@@ -98,21 +99,21 @@ namespace Shopping_Cart.Controllers
             return RedirectToAction("Cart");
         }
 
-        // Displays the cart with totals and discounts
+        // Displays totals and discounts
         public IActionResult Cart()
         {
             SetCartViewBags();
             return View(_cartService.GetCart());
         }
 
-        // Removes an item from the cart
+        // Removes items
         public IActionResult RemoveFromCart(int id)
         {
             _cartService.RemoveFromCart(id);
             return RedirectToAction("Cart");
         }
 
-        // Updates the quantity of an item in the cart
+        // Updates the quantity 
         [HttpPost]
         public IActionResult UpdateQuantity(int productid, int quantity)
         {
@@ -123,10 +124,11 @@ namespace Shopping_Cart.Controllers
             return RedirectToAction("Cart");
         }
 
-        // Applies a promo code and updates the cart view
+        // Applies a promo code and updates 
         [HttpPost]
         public IActionResult ApplyPromoCode(string promocode)
         {
+            _cartService.ResetPromo();
             _cartService.ApplyPromo(promocode);
 
             if (_cartService.GetPromoDiscount() > 0)
@@ -139,7 +141,7 @@ namespace Shopping_Cart.Controllers
         }
 
        
-        private void SetCartViewBags()
+        private void SetCartViewBags()   //view 
         {
             ViewBag.Total = _cartService.GetTotal();
             ViewBag.Discount = _cartService.GetDiscount();
