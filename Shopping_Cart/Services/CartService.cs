@@ -108,7 +108,8 @@ namespace Shopping_Cart.Services
             if (_isFirstTimeUser && _cartItems.Any())
             {
                 var firstItem = _cartItems.First();
-                discount += total * 0.05m;
+                decimal firstTotal = firstItem.Product.Price * firstItem.Quantity;
+                discount += firstTotal * 0.05m;
                 _isFirstTimeUser = false;
             }
 
@@ -153,7 +154,7 @@ namespace Shopping_Cart.Services
                 {
                     int freeItems = item.Quantity / 3;
 
-                    // Total discount for this item = freeItems * product price
+                    // Total discount for this item = freeItems * product price              
                     discount += freeItems * item.Product.Price;
                 }
                 
